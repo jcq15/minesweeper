@@ -15,6 +15,7 @@ class Gui:
         self.caption = '傻雷游戏'
 
         self.game = MineCore(rows, columns, mines)
+        self.game.start()  # 暂且自动开始
 
 
     # 加载图儿们, size=(50, 50)
@@ -58,6 +59,8 @@ class Gui:
             self.__load_img(f'image/type{i}.jpg', (grid, grid))
             for i in range(9)
         ]
+
+        img_flag = self.__load_img('image/flag.jpg', (grid, grid))
 
         # 标题
         pygame.display.set_caption(self.caption)
@@ -119,13 +122,22 @@ class Gui:
                         row = (mouse_y - board_rect.top) // grid
                         col = (mouse_x - board_rect.left) // grid
                         if mouse_click_type == 'left':
-                            update = self.game.discover(row, col)
+                            update = self.game.left_click(row, col)
                             for u in update:
                                 x, y, num = u
                                 if num != -1:
                                     game_board.blit(img_numbers[num], (y * grid, x * grid))
                                 else:
                                     print('你输了')
+                        elif mouse_click_type == 'right':
+                            res = self.game.right_click(row, col)
+                            if res == 1:
+                                # 原来不是flag，现在是了
+                                game_board.blit(img_flag, (col * grid, row * grid))
+                            elif res == 0:
+                                game_board.blit(img_closed, (col * grid, row * grid))
+                            else:
+                                pass
 
                 # 判断用户是否点了"X"关闭按钮,并执行if代码段
                 elif event.type == pygame.QUIT:
@@ -144,5 +156,5 @@ class Gui:
 
 
 if __name__ == '__main__':
-    app = Gui()
+    app = Gui(rows=16, columns=30, mines=99)
     app.run()
